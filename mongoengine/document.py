@@ -1217,14 +1217,11 @@ class Document(BaseDocument):
 
             # handle queries with inheritance
             spec = cls._update_spec(spec, **kwargs)
-            if sort is None:
-                sort = {}
-            else:
-                new_sort = {}
-                for f, dir in sort.iteritems():
+            if sort:
+                new_sort = []
+                for f, dir in sort:
                     f, _ = cls._transform_key(f, cls)
-                    new_sort[f] = dir
-
+                    new_sort.append((f, dir))
                 sort = new_sort
 
             transformed_fields = cls._transform_fields(fields, excluded_fields)
