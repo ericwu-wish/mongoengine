@@ -1545,23 +1545,23 @@ class Document(BaseDocument):
         finally:
             self.cleanup_trace(set_comment)
 
-    def set(self, **kwargs):
-        return self.update_one({'$set': kwargs})
+    def set(self, session=None, **kwargs):
+        return self.update_one({'$set': kwargs}, session=session)
 
-    def unset(self, **kwargs):
-        return self.update_one({'$unset': kwargs})
+    def unset(self, session=None, **kwargs):
+        return self.update_one({'$unset': kwargs}, session=session)
 
-    def inc(self, **kwargs):
-        return self.update_one({'$inc': kwargs})
+    def inc(self, session=None, **kwargs):
+        return self.update_one({'$inc': kwargs}, session=session)
 
-    def push(self, **kwargs):
-        return self.update_one({'$push': kwargs})
+    def push(self, session=None, **kwargs):
+        return self.update_one({'$push': kwargs}, session=session)
 
-    def pull(self, **kwargs):
-        return self.update_one({'$pull': kwargs})
+    def pull(self, session=None, **kwargs):
+        return self.update_one({'$pull': kwargs}, session=session)
 
-    def add_to_set(self, **kwargs):
-        return self.update_one({'$addToSet': kwargs})
+    def add_to_set(self, session=None, **kwargs):
+        return self.update_one({'$addToSet': kwargs}, session=session)
 
     @classmethod
     def drop_collection(cls, session=None):
