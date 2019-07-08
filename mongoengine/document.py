@@ -957,9 +957,10 @@ class Document(BaseDocument):
                     for d in cls._iterate_cursor(cur)
                 ]
             except pymongo.errors.ExecutionTimeout:
+                pycur = cls._pycursor(cur)
                 execution_timeout_logger.info({
-                    '_comment' : str(cur._Cursor__comment),
-                    '_max_time_ms' : cur._Cursor__max_time_ms,
+                    '_comment' : str(pycur._Cursor__comment),
+                    '_max_time_ms' : pycur._Cursor__max_time_ms,
                 })
                 if cls.ALLOW_TIMEOUT_RETRY and (max_time_ms is None or \
                     max_time_ms < cls.MAX_TIME_MS):
@@ -1001,9 +1002,10 @@ class Document(BaseDocument):
                         last_doc = cls._from_augmented_son(doc, fields, excluded_fields)
                         yield last_doc
                     except pymongo.errors.ExecutionTimeout:
+                        pycur = cls._pycursor(cur)
                         execution_timeout_logger.info({
-                            '_comment' : str(cur._Cursor__comment),
-                            '_max_time_ms' : cur._Cursor__max_time_ms,
+                            '_comment' : str(pycur._Cursor__comment),
+                            '_max_time_ms' : pycur._Cursor__max_time_ms,
                          })
                         raise
             finally:
@@ -1080,9 +1082,10 @@ class Document(BaseDocument):
         try:
             return wait_for_future(cur.distinct(cls._transform_key(key, cls)[0]))
         except pymongo.errors.ExecutionTimeout:
+            pycur = cls._pycursor(cur)
             execution_timeout_logger.info({
-                '_comment' : str(cur._Cursor__comment),
-                '_max_time_ms' : cur._Cursor__max_time_ms,
+                '_comment' : str(pycur._Cursor__comment),
+                '_max_time_ms' : pycur._Cursor__max_time_ms,
             })
             if cls.ALLOW_TIMEOUT_RETRY and (max_time_ms is None or \
                 max_time_ms < cls.MAX_TIME_MS):
@@ -1165,21 +1168,17 @@ class Document(BaseDocument):
                 finally:
                     cls.cleanup_trace(set_comment)
 
-        cur, set_comment = cls.find_raw(spec, fields, skip=skip, sort=sort,
+        doc, set_comment = cls.find_raw(spec, fields, skip=skip, sort=sort,
                          slave_ok=slave_ok, find_one=True,
                          excluded_fields=excluded_fields,
                          max_time_ms=max_time_ms, session=session, **kwargs)
 
         try:
-            if cur:
-                return cls._from_augmented_son(cur, fields, excluded_fields)
+            if doc:
+                return cls._from_augmented_son(doc, fields, excluded_fields)
             else:
                 return None
         except pymongo.errors.ExecutionTimeout:
-            execution_timeout_logger.info({
-                '_comment' : str(cur._Cursor__comment),
-                '_max_time_ms' : cur._Cursor__max_time_ms,
-            })
             if cls.ALLOW_TIMEOUT_RETRY and (max_time_ms is None or \
                 max_time_ms < cls.MAX_TIME_MS):
                 return cls.find_one(
@@ -1298,9 +1297,10 @@ class Document(BaseDocument):
                 else:
                     _sleep(cls.AUTO_RECONNECT_SLEEP)
             except pymongo.errors.ExecutionTimeout:
+                pycur = cls._pycursor(cur)
                 execution_timeout_logger.info({
-                    '_comment' : str(cur._Cursor__comment),
-                    '_max_time_ms' : cur._Cursor__max_time_ms,
+                    '_comment' : str(pycur._Cursor__comment),
+                    '_max_time_ms' : pycur._Cursor__max_time_ms,
                 })
                 if cls.ALLOW_TIMEOUT_RETRY and (max_time_ms is None or \
                 max_time_ms < cls.MAX_TIME_MS):
@@ -1946,6 +1946,13 @@ class Document(BaseDocument):
             return Document._transform_key(rest, field, prefix=result, is_find=is_find)
         else:
             return result, field
+
+    @staticmethod
+    def _pycursor(cur):
+        if isinstance(cur, pymongo.cursor.Cursor) or isinstance(cur, pymongo.command_cursor.CommandCursor):
+            return cur
+        # Motor
+        return cur.delegate
 
 class MapReduceDocument(object):
     """A document returned from a map/reduce query.
