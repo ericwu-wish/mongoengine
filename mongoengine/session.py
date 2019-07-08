@@ -32,7 +32,7 @@ def start_session(conn_name=None, causal_consistency=True,
     """
     allow_async = bool(greenlet.getcurrent().parent)
     conn = _connections[conn_name]
-    client = conn.async if allow_async else conn.sync
+    client = conn.async if allow_async and conn.async else conn.sync
     session = wait_for_future(client.start_session(
         causal_consistency=causal_consistency,
         default_transaction_options=default_transaction_options))
