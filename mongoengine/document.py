@@ -1598,15 +1598,13 @@ class Document(BaseDocument):
                     transformed_value = SON()
 
                     for key, subvalue in listel.iteritems():
-                        if key[0] == '$':
-                            op = key
-
+                        new_op = key if key[0] == '$' else None
                         new_key, value_context = Document._transform_key(key, context,
-                                                     is_find=(op is None))
+                                                     is_find=(new_op is None))
 
                         transformed_value[new_key] = \
                             Document._transform_value(subvalue, value_context,
-                                                      op, validate, fields)
+                                                      new_op, validate, fields)
 
                         transformed_list.append(transformed_value)
                 else:
@@ -1617,11 +1615,9 @@ class Document(BaseDocument):
         if isinstance(value, dict) and not isinstance(context, DictField):
             transformed_value = SON()
 
-
             for key, subvalue in value.iteritems():
                 embeddeddoc = False
-                if key[0] == '$':
-                    op = key
+                new_op = key if key[0] == '$' else None
 
                 if isinstance(context, ListField):
                     if isinstance(context.field, EmbeddedDocumentField):
@@ -1629,11 +1625,11 @@ class Document(BaseDocument):
                         embeddeddoc = True
 
                 new_key, value_context = Document._transform_key(key, context,
-                                             is_find=(op is None))
+                                             is_find=(new_op is None))
 
                 transformed_value[new_key] = \
                     Document._transform_value(subvalue, value_context,
-                                              op, validate, fields, embeddeddoc=embeddeddoc)
+                                              new_op, validate, fields, embeddeddoc=embeddeddoc)
 
             return transformed_value
         # if we're in a dict field and there's operations on it, recurse
