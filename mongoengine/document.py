@@ -1598,7 +1598,7 @@ class Document(BaseDocument):
                     transformed_value = SON()
 
                     for key, subvalue in listel.iteritems():
-                        new_op = key if key[0] == '$' else None
+                        new_op = key if key[0] == '$' else op
                         new_key, value_context = Document._transform_key(key, context,
                                                      is_find=(new_op is None))
 
@@ -1617,7 +1617,7 @@ class Document(BaseDocument):
 
             for key, subvalue in value.iteritems():
                 embeddeddoc = False
-                new_op = key if key[0] == '$' else None
+                new_op = key if key[0] == '$' else op
 
                 if isinstance(context, ListField):
                     if isinstance(context.field, EmbeddedDocumentField):
