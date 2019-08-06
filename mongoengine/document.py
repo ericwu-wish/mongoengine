@@ -314,7 +314,7 @@ class Document(BaseDocument):
                     messages = '\n'.join(_['errmsg'] for _ in wc_errors)
                     message = 'Write concern errors for bulk op: %s' % messages
                 elif w_error:
-                    for object_id, props in cls.get_bulk_attr(cls.BULK_SAVE_OBJECTS):
+                    for object_id, props in cls.get_bulk_attr(cls.BULK_SAVE_OBJECTS).iteritems():
                         if props['index'] < w_error['index']:
                             instance = props['obj']
                             if instance.id is None:
