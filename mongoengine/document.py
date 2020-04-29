@@ -2,7 +2,6 @@ from base import (DocumentMetaclass, TopLevelDocumentMetaclass, BaseDocument,
                   ValidationError, MongoComment, get_document, get_embedded_doc_fields,
                   FieldStatus, FieldNotLoadedError)
 from queryset import OperationError
-from cl.utils.greenletutil import CLGreenlet, GreenletUtil
 import contextlib
 import pymongo
 import pymongo.operations
@@ -23,9 +22,11 @@ import warnings
 from bson import SON, ObjectId, DBRef
 from connection import _get_db, _get_slave_ok, _get_proxy_client, _get_proxy_decider, OpClass
 
+from wishwms.cl_utils.greenletutil import CLGreenlet, GreenletUtil
+
 try:
-    from soa.services.base_client import RPCException
-    from soa.services.base_grpc_client import ProxiedGrpcError
+    from wishwms.cl_utils.soa.services.base_client import RPCException
+    from wishwms.cl_utils.soa.services.base_grpc_client import ProxiedGrpcError
 except:
     RPCException = None
     ProxiedGrpcError = None
